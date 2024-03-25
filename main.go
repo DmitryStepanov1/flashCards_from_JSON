@@ -54,12 +54,14 @@ jumpTo1:
 
 	regex.MatchString(inputString)
 
-	if regex.MatchString(scanner.Text()) == false {
-		fmt.Println("File is wrong. Try again.")
+	if scanner.Text() == "exit" {
+		os.Exit(0)
+	} else if regex.MatchString(scanner.Text()) == false {
+		fmt.Println("File name is wrong. Try again.")
 		goto jumpTo1
 	}
 
-	jsonFile, err := os.Open(inputString)
+	f, err := os.Open(inputString)
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
@@ -67,12 +69,19 @@ jumpTo1:
 		fmt.Println("Successfully Opened json-file")
 	}
 
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
+	// defer the closing of our f json-file so that we can parse it later on
+	defer f.Close()
 
-	byteValue, _ := io.ReadAll(jsonFile)
+	byteValue, _ := io.ReadAll(f)
 
-	json.Unmarshal([]byte(byteValue), &inputMap)
+	// not applicable for text-files
+	err = json.Unmarshal([]byte(byteValue), &inputMap)
+	if err != nil {
+		fmt.Println(err)
+	} else if len(inputMap) == 0 {
+		fmt.Println("Data from JSON wasn't parsed")
+		goto jumpTo1
+	}
 
 	fmt.Println(inputMap)
 
